@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Digital Clock</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #101827, #263b71);
+      color: #fff;
+    }
+    main { width: min(100%, 900px); }
+    h1 { text-align: center; margin: 0 0 24px; }
+    #clocks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+    .clock {
+      padding: 22px;
+      border: 1px solid #ffffff25;
+      border-radius: 18px;
+      background: #ffffff12;
+      box-shadow: 0 12px 30px #0003;
+      backdrop-filter: blur(8px);
+    }
+    .zone { color: #b9c8ff; font-weight: 700; }
+    .time { margin: 12px 0 4px; font-size: clamp(2rem, 7vw, 3.2rem); font-variant-numeric: tabular-nums; }
+    .date { color: #d7def5; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>World Digital Clock</h1>
+    <section id="clocks" aria-live="polite"></section>
+  </main>
+  <script>
+    const zones = [
+      ['Local time', Intl.DateTimeFormat().resolvedOptions().timeZone],
+      ['New York', 'America/New_York'],
+      ['London', 'Europe/London'],
+      ['Dubai', 'Asia/Dubai'],
+      ['New Delhi', 'Asia/Kolkata'],
+      ['Tokyo', 'Asia/Tokyo'],
+      ['Sydney', 'Australia/Sydney']
+    ];
+
+    const clocks = document.getElementById('clocks');
+    const cards = zones.map(([name, timeZone]) => {
+      const card = document.createElement('article');
+      card.className = 'clock';
+      card.innerHTML = `<div class="zone"></div><div class="time"></div><div class="date"></div>`;
+      card.querySelector('.zone').textContent = `${name} · ${timeZone}`;
+      clocks.appendChild(card);
+      return { timeZone, time: card.querySelector('.time'), date: card.querySelector('.date') };
+    });
+
+    function updateClocks() {
+      const now = new Date();
+      cards.forEach(({ timeZone, time, date }) => {
+        time.textContent = new Intl.DateTimeFormat(undefined, {
+          timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        }).format(now);
+        date.textContent = new Intl.DateTimeFormat(undefined, {
+          timeZone, weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+        }).format(now);
+      });
+    }
+
+    updateClocks();
+    setInterval(updateClocks, 1000);
+  </script>
+</body>
+</html>
