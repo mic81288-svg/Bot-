@@ -1,15 +1,13 @@
-# Binance Testnet SMC bot
+# Binance Testnet SMC dashboard
 
-The bot now uses Binance candlesticks instead of CoinGecko/random prices. It includes EMA trend filtering, candle patterns, market structure/BOS, liquidity-sweep confirmation, position sizing with 10% configured risk, and a fixed 3:1 reward-to-risk target.
+This version is Railway-ready and uses Binance candles, EMA trend, RSI, candle reading, BOS/liquidity-sweep SMC confirmation, 10% configurable risk per trade, and a fixed 3:1 target. It supports configured analysis timeframes from 1 second through 4 hours; trading uses `TRADE_TIMEFRAME` (15m by default) so the bot does not overtrade on every timeframe.
 
-## Railway variables
+## Deploy safely
 
-Copy `.env.example` into Railway Variables and replace the Binance Testnet credentials. Never commit keys or send them in chat.
+1. Deploy this repository on Railway.
+2. Add `BINANCE_API_KEY` and `BINANCE_API_SECRET` as Railway Variables only.
+3. Keep `ENABLE_ORDERS=false` for the first test. This creates signal-only dashboard positions without exchange orders.
+4. Verify `/health`, `/api/analyze-all`, and `/api/timeframes`.
+5. Only on Binance Spot Testnet, after verification, set `ENABLE_ORDERS=true`.
 
-Start with `ENABLE_ORDERS=false`. This runs signal-only mode. After confirming the dashboard and Testnet account are correct, set `ENABLE_ORDERS=true` to enable authenticated Binance Spot Testnet market buys. The bot is long-only on Spot; it does not short-sell.
-
-## Deploy
-
-Railway can deploy this repository with the included `Procfile`. Use one worker because the trading loop is an in-process background thread.
-
-A 10% risk setting is aggressive and is configurable through `RISK_PER_TRADE`; it does not guarantee a 10% loss or any win rate. Testnet results are not a promise of live performance.
+This is Spot and long-only: it buys and later sells the same asset at the calculated stop or target. It does not short. Railway restarts reset in-memory dashboard state, so production persistence is still needed for a long-running account. A 10% risk setting is aggressive and no win rate or profit is guaranteed.
